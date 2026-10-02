@@ -1,0 +1,18 @@
+# Virtual Environments
+enterprise_rag_env/
+venv/
+.venv/
+
+# Python Cache (Compiled bytecode)
+__pycache__/
+*.pyc
+
+# Local Data & Vector Stores (Keep your repo lightweight)
+*.pdf
+*.csv
+*.json
+/data/
+/vector_store/
+
+# Secrets and API Keys (Crucial for security)
+.env
