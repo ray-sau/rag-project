@@ -20,7 +20,7 @@ full_text = "\n".join(text_corpus)
 # Apply Recursive Character Splitting (Regex enabled)
 print("Applying Recursive Character Splitting...")
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000, 
+    chunk_size=1000,
     chunk_overlap=200,
     separators=[r"\n{2,}", r"\n", r"\.", " ", ""],
     is_separator_regex=True
@@ -39,14 +39,17 @@ print("BM25 index saved safely to ./local_bm25_index")
 # Build and Save the Dense (Chroma/ONNX) Track
 print("\nGenerating ONNX embeddings and building ChromaDB...")
 embedding_model = TextEmbedding()
-all_embeddings = [list(e) for e in embedding_model.embed(chunks)]
+all_embeddings = [e.tolist() for e in embedding_model.embed(chunks)]
 
 chroma_client = chromadb.PersistentClient(path="./local_vector_db")
-collection = chroma_client.get_or_create_collection(name="policy_collection")
 
-# Clear the collection first if you are re-running this script
-if collection.count() > 0:
-    collection.delete(where={})
+# Safely reset the collection by deleting it completely first
+try:
+    chroma_client.delete_collection(name="policy_collection")
+except Exception:
+    pass  # If it doesn't exist yet, just continue
+
+collection = chroma_client.get_or_create_collection(name="policy_collection")
 
 collection.add(
     documents=chunks,
